@@ -72,12 +72,12 @@ export function Header({ onMenuClick }) {
                             placeholder="Search videos..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pr-12 rounded-r-none"
+                            className="pr-12 rounded-r-none bg-gray-100 border-secondary border-r-0 transition-colors focus-visible:ring-0 focus-visible:ring-offset-0"
                         />
                         <Button
                             type="submit"
                             variant="secondary"
-                            className="rounded-l-none px-4"
+                            className="rounded-l-none px-4 bg-gray-100 border border-l-0 border-secondary hover:bg-gray-200"
                         >
                             <Search className="h-4 w-4" />
                         </Button>
@@ -117,7 +117,7 @@ export function Header({ onMenuClick }) {
                                 <DropdownMenuTrigger asChild>
                                     <button className="rounded-full ring-2 ring-transparent hover:ring-primary/50 transition-all">
                                         <Avatar className="h-8 w-8">
-                                            <AvatarImage src={undefined} />
+                                            <AvatarImage src={user.avatar} alt={user.username || user.email} />
                                             <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                                                 {getInitials(user.email)}
                                             </AvatarFallback>

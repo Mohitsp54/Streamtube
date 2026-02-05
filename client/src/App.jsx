@@ -1,35 +1,104 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { VideoProvider } from '@/contexts/VideoContext';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { HomePage } from '@/pages/HomePage';
+import { VideoPage } from '@/pages/VideoPage';
+import { UploadPage } from '@/pages/UploadPage';
+import { AuthPage } from '@/pages/AuthPage';
+import { ProfilePage } from '@/pages/ProfilePage';
+import { WatchLaterPage } from '@/pages/WatchLaterPage';
+import { LikedVideosPage } from '@/pages/LikedVideosPage';
+import { ExplorePage } from '@/pages/ExplorePage';
+import { SettingsPage } from '@/pages/SettingsPage';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Protected route wrapper
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  return children;
 }
 
-export default App
+function AppRoutes() {
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+      <Route path="/watch/:id" element={<MainLayout><VideoPage /></MainLayout>} />
+      <Route path="/explore" element={<MainLayout><ExplorePage /></MainLayout>} />
+      <Route path="/auth" element={<AuthPage />} />
+
+      {/* Protected routes */}
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <MainLayout><UploadPage /></MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <MainLayout><ProfilePage /></MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/watch-later"
+        element={
+          <ProtectedRoute>
+            <MainLayout><WatchLaterPage /></MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/liked"
+        element={
+          <ProtectedRoute>
+            <MainLayout><LikedVideosPage /></MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <MainLayout><SettingsPage /></MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 404 */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <VideoProvider>
+          <AppRoutes />
+        </VideoProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;

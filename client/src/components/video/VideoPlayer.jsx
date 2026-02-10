@@ -5,11 +5,11 @@ import { cn } from '@/lib/utils';
 
 export function VideoPlayer({ src, poster }) {
     const videoRef = useRef(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(1);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [showControls, setShowControls] = useState(true);
     const containerRef = useRef(null);
@@ -103,6 +103,10 @@ export function VideoPlayer({ src, poster }) {
                 poster={poster}
                 className="w-full h-full"
                 onClick={togglePlay}
+                autoPlay
+                playsInline
+                muted={isMuted}
+                onError={(e) => console.error('Video Error:', e)}
             />
 
             {/* Play button overlay */}

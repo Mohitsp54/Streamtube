@@ -2,30 +2,36 @@ import { useParams, Navigate } from 'react-router-dom';
 import { useVideo } from '@/contexts/VideoContext';
 import { VideoPlayer } from '@/components/video/VideoPlayer';
 import { VideoDetails } from '@/components/video/VideoDetails';
-import { CommentSection } from '@/components/video/CommentSection';
 import { VideoGrid } from '@/components/video/VideoGrid';
 
 export function VideoPage() {
     const { id } = useParams();
-    const { videos } = useVideo();
+    const { videos, loading } = useVideo();
 
-    const video = videos.find(v => v.id === id);
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    const video = videos.find(v => (v._id || v.id) === id);
 
     if (!video) {
         return <Navigate to="/" replace />;
     }
 
     // Get related videos (exclude current video)
-    const relatedVideos = videos.filter(v => v.id !== id).slice(0, 8);
+    const relatedVideos = videos.filter(v => (v._id || v.id) !== id).slice(0, 8);
 
     return (
         <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main content */}
                 <div className="lg:col-span-2 space-y-4">
-                    <VideoPlayer src={video.videoUrl} poster={video.thumbnail} />
+                    <VideoPlayer src={video.videoUrl} poster={video.thumbnailUrl || video.thumbnail} />
                     <VideoDetails video={video} />
-                    <CommentSection comments={video.comments} />
                 </div>
 
                 {/* Related videos sidebar */}

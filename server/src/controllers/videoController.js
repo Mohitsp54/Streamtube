@@ -1,18 +1,11 @@
 const Video = require('../models/Video');
-const { bucket } = require('../config/storage');
-const { v4: uuidv4 } = require('uuid');
 
 const uploadVideo = async (req, res) => {
     try {
         console.log('Upload request received');
         console.log('User:', req.user);
-        console.log('File:', req.file ? {
-            originalname: req.file.originalname,
-            mimetype: req.file.mimetype,
-            size: req.file.size
-        } : 'No file');
 
-        if (!req.file) {
+        if (!req.files || !req.files.video) {
             return res.status(400).json({ message: 'No video file uploaded' });
         }
 
@@ -21,42 +14,33 @@ const uploadVideo = async (req, res) => {
         }
 
         const { title, description } = req.body;
-        const fileName = `videos/${uuidv4()}-${req.file.originalname}`;
-        console.log('Uploading to GCS:', fileName);
+        const videoFile = req.files.video[0];
+        const thumbnailFile = req.files.thumbnail ? req.files.thumbnail[0] : null;
 
-        const blob = bucket.file(fileName);
-        const blobStream = blob.createWriteStream({
-            resumable: false,
-            contentType: req.file.mimetype,
+        // Nginx will serve files from http://localhost:8080/videos/ and http://localhost:8080/thumbnails/
+        const publicUrl = `http://localhost:8080/videos/${videoFile.filename}`;
+
+        let thumbUrl = `https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=800&q=80`; // default
+        if (thumbnailFile) {
+            thumbUrl = `http://localhost:8080/thumbnails/${thumbnailFile.filename}`;
+        }
+
+        console.log('Local upload finished. Public URL:', publicUrl);
+        if (thumbnailFile) console.log('Thumbnail URL:', thumbUrl);
+
+        let video = await Video.create({
+            title: title || videoFile.originalname,
+            description: description || '',
+            videoUrl: publicUrl,
+            thumbnailUrl: thumbUrl,
+            userId: req.user.id,
         });
 
-        blobStream.on('error', (err) => {
-            console.error('GCS Upload Error:', err);
-            res.status(500).json({ message: 'Error uploading to GCS', error: err.message });
-        });
+        // Populate userId to avoid frontend errors before next fetch
+        video = await video.populate('userId', 'username avatar');
 
-        blobStream.on('finish', async () => {
-            // The public URL can be used to directly access the file via HTTP.
-            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-            console.log('GCS upload finished. Public URL:', publicUrl);
-
-            try {
-                const video = await Video.create({
-                    title: title || req.file.originalname,
-                    description: description || '',
-                    videoUrl: publicUrl,
-                    thumbnailUrl: `https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=800&q=80`,
-                    userId: req.user.id,
-                });
-                console.log('Video metadata saved to DB:', video._id);
-                res.status(201).json(video);
-            } catch (dbError) {
-                console.error('DB Save Error:', dbError);
-                res.status(500).json({ message: 'Error saving video metadata', error: dbError.message });
-            }
-        });
-
-        blobStream.end(req.file.buffer);
+        console.log('Video metadata saved to DB:', video._id);
+        res.status(201).json(video);
     } catch (error) {
         console.error('Server Error:', error);
         res.status(500).json({ message: 'Server error during upload', error: error.message });

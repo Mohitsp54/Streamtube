@@ -71,3 +71,17 @@ export function formatRelativeTime(date) {
     const diffInYears = Math.floor(diffInMonths / 12);
     return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
 }
+
+/**
+ * Safely get the first letter of a string for avatar fallbacks.
+ */
+export function getInitial(value, fallback = 'U') {
+    if (typeof value !== 'string') {
+        return fallback;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return fallback;
+    }
+    return trimmed[0].toUpperCase();
+}

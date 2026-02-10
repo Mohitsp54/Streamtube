@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useVideo } from '@/contexts/VideoContext';
 import { VideoGrid } from '@/components/video/VideoGrid';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { formatViewCount } from '@/lib/utils';
+import { formatViewCount, getInitial } from '@/lib/utils';
 
 export function ProfilePage() {
     const { user } = useAuth();
@@ -18,7 +18,7 @@ export function ProfilePage() {
             <div className="flex items-start gap-6">
                 <Avatar className="h-24 w-24">
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="text-2xl">{user.name[0]}</AvatarFallback>
+                    <AvatarFallback className="text-2xl">{getInitial(user?.name || user?.email)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                     <h1 className="text-3xl font-bold mb-2">{user.name}</h1>

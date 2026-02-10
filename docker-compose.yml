@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server/uploads:/app/uploads
+    environment:
+      - MONGODB_URI=mongodb+srv://mohitsp54_db_user:JI7RIurbcaMAWXyy@hms.isue90u.mongodb.net/streamtube?retryWrites=true&w=majority&appName=Hms
+      - JWT_SECRET=your_super_secret_jwt_key_here
+      - NODE_ENV=development
+    depends_on:
+      - nginx
+
+  client:
+    build: ./client
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./server/uploads/videos:/usr/share/nginx/html/videos:ro
+      - ./server/uploads/thumbnails:/usr/share/nginx/html/thumbnails:ro
+
+volumes:
+  video_data:

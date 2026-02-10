@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
@@ -23,7 +24,7 @@ export function AuthProvider({ children }) {
     }, [token]);
 
     const signIn = async (email, password) => {
-        const response = await fetch('http://127.0.0.1:3001/api/auth/login', {
+        const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -43,7 +44,7 @@ export function AuthProvider({ children }) {
     };
 
     const signUp = async (email, password, name) => {
-        const response = await fetch('http://127.0.0.1:3001/api/auth/register', {
+        const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, name }),

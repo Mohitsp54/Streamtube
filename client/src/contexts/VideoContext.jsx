@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 const VideoContext = createContext(null);
-const API_URL = 'http://127.0.0.1:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export function VideoProvider({ children }) {
     const [videos, setVideos] = useState([]);
@@ -105,11 +105,11 @@ export function VideoProvider({ children }) {
     };
 
     const getLikedVideos = () => {
-        return videos.filter(video => likedVideos.includes(video.id));
+        return videos.filter(video => likedVideos.includes(video._id || video.id));
     };
 
     const getWatchLaterVideos = () => {
-        return videos.filter(video => watchLater.includes(video.id));
+        return videos.filter(video => watchLater.includes(video._id || video.id));
     };
 
     const isLiked = (videoId) => likedVideos.includes(videoId);

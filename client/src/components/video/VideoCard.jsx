@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { formatViewCount, formatDuration, formatRelativeTime } from '@/lib/utils';
+import { formatViewCount, formatDuration, formatRelativeTime, getInitial } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useVideo } from '@/contexts/VideoContext';
 import { Check, Clock } from 'lucide-react';
@@ -49,7 +49,7 @@ export function VideoCard({ video }) {
             <div className="flex gap-3">
                 <Avatar className="h-9 w-9 mt-0.5">
                     <AvatarImage src={displayVideo.channel.avatar} alt={displayVideo.channel.name} />
-                    <AvatarFallback>{displayVideo.channel.name[0]}</AvatarFallback>
+                    <AvatarFallback>{getInitial(displayVideo.channel?.name)}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                     <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">

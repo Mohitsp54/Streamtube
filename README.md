@@ -21,12 +21,6 @@ Streamtube is a premium video-sharing platform built with the MERN stack. It all
 - **Storage**: Google Cloud Storage (GCS).
 - **Authentication**: JWT (JSON Web Tokens).
 
-## 📋 Prerequisites
-
-- **Node.js**: v18.0.0 or higher.
-- **MongoDB**: A running MongoDB instance (Atlas or Local).
-- **Google Cloud Account**: For GCS buckets and service account keys.
-
 ## ⚙️ Setup Instructions
 
 ### 1. Clone the Repository
